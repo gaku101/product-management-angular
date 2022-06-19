@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { LoadingService } from 'src/app/core/services/loading.service';
 import { RoutingService } from 'src/app/core/services/routing.service';
 
 import { Component, OnInit } from '@angular/core';
@@ -28,6 +29,7 @@ export class SignInPageComponent implements OnInit {
     private accountService: AccountService,
     private formBuilder: FormBuilder,
     private routingService: RoutingService,
+    private loadingService: LoadingService,
     public translateService: TranslateService
   ) {}
 
@@ -60,18 +62,17 @@ export class SignInPageComponent implements OnInit {
   }
 
   private getLanguage(language: string): string {
-    console.log('SignInPageComponent #getLanguage() language:' + language);
-
     const CHAR_HYPHEN = '-';
     if (language.indexOf(CHAR_HYPHEN) > 0) {
       const splittedLanguage: string[] = language.split(CHAR_HYPHEN);
-      console.log('SignInPageComponent #getLanguage() splittedLanguage[0]:' + splittedLanguage[0]);
 
       return splittedLanguage[0];
     }
     return language;
   }
   private signIn(signInRequestDto: SignInRequestDto) {
+    // Starts Loading.
+    this.loadingService.startLoading();
     // Signs in and gets response dto.
     const signInResponseDto: Observable<SignInResponseDto> = this.accountService.signIn(signInRequestDto);
     signInResponseDto.subscribe((responseDto) => {
@@ -81,6 +82,8 @@ export class SignInPageComponent implements OnInit {
         // Moves to the Product listing page.
         this.routingService.navigate(UrlConst.PATH_PRODUCT_LISTING);
       }
+      // Stops Loading.
+      this.loadingService.stopLoading();
     });
   }
 
